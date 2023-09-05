@@ -7,7 +7,7 @@ let rankNames = {
     1: "🧑🏿‍🌾Human",
 }
 
-export function getScore(word: string, game: any): number {
+export function getWordScore(word: string, game: any): number {
     if (word.length == 4) return 1;
     if (game.pangrams.includes(word)) return word.length + 7;
     return word.length;

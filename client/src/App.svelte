@@ -7,7 +7,7 @@
 	import { draw, fade, fly, scale } from 'svelte/transition';
     import Modal from './Modal.svelte';
     import Progress from './Progress.svelte';
-	import { getScore, getRank } from './scoring';
+	import { getWordScore, getRank } from './scoring';
 
 	type Game = {
 		letters: string[],
@@ -32,7 +32,7 @@
 	}
 
 	let game: Game
-	let latestGame: Game
+	let newGame: Game
 	let currentWord: string = ""
 	let foundWords: string[] = []
 	let score: number = 0
@@ -42,35 +42,36 @@
 	let hintsUnlocked: boolean = false
 	
 	async function loadGame() {
-		latestGame = JSON.parse(localStorage.getItem("game"))
+		game = JSON.parse(localStorage.getItem("game"))
 		foundWords = JSON.parse(localStorage.getItem("foundWords")) || []
 
 		let res = await fetch("/get_game")
-		game = await res.json()
-		console.log(game.letters, game)
+		newGame = await res.json()
+		console.log(newGame.letters, newGame)
 
-		if (!latestGame) {
+		if (!game) {
 			console.log("No local game found, using new game")
-			newGame(game)
+			startNewGame(newGame)
 		}
-		else if (!arrayEqual(game.validWords, latestGame.validWords)) {
+		else if (!arrayEqual(newGame.validWords, game.validWords)) {
 			console.log("Local game is outdated, showing game over modal")
 			showGameOverModal = true
 		}
 	}
-	let gameLoad = loadGame()
+	loadGame()
 	
-	function newGame(game: Game) {
+	function startNewGame(newGame: Game) {
 		console.log("New game started")
+		game = newGame
 		currentWord = ""
 		foundWords = []
+		score = 0
 		localStorage.setItem("game", JSON.stringify(game))
 		localStorage.setItem("foundWords", JSON.stringify(foundWords))
 	}
 	
 	$: if (game) game.outer = game.letters.filter(letter => letter != game.center)
-	$: if (game) game.maxScore = game.validWords.reduce((acc, word) => acc + getScore(word, game), 0)
-	$: if (game && foundWords) score = foundWords.reduce((acc, word) => acc + getScore(word, game), 0)
+	$: if (game) game.maxScore = game.validWords.reduce((acc, word) => acc + getWordScore(word, game), 0)
 
 	const feedback: Feedback =  {
 		message: undefined,
@@ -104,7 +105,6 @@
 		game.letters = game.letters.sort(() => Math.random() - 0.5)
 	}
 	function enterWord() {
-		console.log(currentWord)
 		if (!currentWord) return 
 		if (currentWord.length < 4) {
 			feedback.pushMessage("Too short", false)
@@ -124,7 +124,7 @@
 		}
 		else {
 			foundWords = [currentWord, ...foundWords]
-			let wordScore = getScore(currentWord, game)
+			let wordScore = getWordScore(currentWord, game)
 			score += wordScore
 
 			localStorage.setItem("foundWords", JSON.stringify(foundWords))
@@ -178,16 +178,17 @@
 	</Modal>
 
 	{#if showGameOverModal} 
-	<Modal bind:showModal={showGameOverModal} on:closeModal={() => newGame(game)}>
+	<Modal bind:showModal={showGameOverModal} on:closeModal={() => startNewGame(newGame)}>
+		{@const score = foundWords.reduce((acc, word) => acc + getWordScore(word, game), 0)}
 		<div class="found-words-container">
 			<div class="endgame-msg">
 				<h1>Time's up!</h1>
-				<h2><span class="green">{foundWords.length}</span>/{latestGame.validWords.length} words found
-					({Math.round((foundWords.length || 0) / latestGame.validWords.length * 100)}%)</h2>
-				<h2>Final rank: {getRank(score, latestGame)[0]}</h2>
+				<h2><span class="green">{foundWords.length}</span>/{game.validWords.length} words found
+					({Math.round((foundWords.length || 0) / game.validWords.length * 100)}%)</h2>
+				<h2>Final rank: {getRank(score, game)[0]}</h2>
 			</div>
 			<div class="found-words-list">
-				{#each latestGame.validWords.sort() as word (word)}
+				{#each game.validWords.sort() as word (word)}
 					<span class:pangram={game.pangrams.includes(word)} class="found-word-item">
 						<i class="bi bi-check green" 
 						   class:invisible={!foundWords.includes(word)}></i>
@@ -202,13 +203,14 @@
 	{#if showHintsModal}
 	<Modal bind:showModal={showHintsModal}>
 		{@const remainingWords = game.validWords.filter((w) => !foundWords.includes(w)).sort()}
+		{@const showFullHints = ["🧑🏿‍🌾Human", "🤖Robot"].includes(getRank(score, game)[0])}
 		<h1>{remainingWords.length} remaining words: </h1>
 		<div class="hints-container">
 			{#each remainingWords as word (word)}
 				<div class="word-hint">
 					{#each word as c, i (i)}
 						<div class="word-hint-letter">
-							{#if (i === 0 || i === 1 || i === word.length-1)}
+							{#if (i === 0 || i === 1 || (i === word.length-1 && showFullHints))}
 								{c.toUpperCase()}
 							{/if}
 						</div>
@@ -220,8 +222,14 @@
 	{/if}
 	
 	<div class="top-bar">
-		<Progress bind:foundWords bind:game bind:score> 
+
+		<Progress 
+			foundWords={foundWords}
+			game={game}
+			score={score}
+		> 
 		</Progress>
+
 		<button class="hints-btn" on:pointerdown={() => {
 			if (hintsAreUnlocked()) showHintsModal = true
 			else feedback.pushMessage("Reach 🦧Orangutang to unlock hints", false)
