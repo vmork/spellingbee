@@ -1,0 +1,11 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #F6F6F6;
+}
+button {
+    background-color: #F6F6F6 !important;
+    -webkit-tap-highlight-color: transparent;
+}
