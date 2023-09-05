@@ -6,11 +6,10 @@ import os
 
 PORT = os.environ.get("PORT", 5000)
 RESET_HOUR = 19
-
-word_list = open("./wordlist.txt").read().split("\n")
+WORD_LIST = open("./wordlist.txt").read().split("\n")
 
 def get_valid_words(combo: str, center: str):
-    words = [w for w in word_list 
+    words = [w for w in WORD_LIST 
              if center in w 
              and all(c in combo for c in w)]
     return words
