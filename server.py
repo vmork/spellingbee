@@ -2,6 +2,9 @@ from flask import Flask, send_from_directory
 import json
 import random
 from datetime import datetime
+import os
+
+PORT = os.environ.get("PORT", 5000)
 
 word_list = open("./wordlist.txt").read().split("\n")
 
@@ -63,4 +66,4 @@ def get_new_game():
         return game
         
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0")
+    app.run(debug=False, host="0.0.0.0", port=PORT)
