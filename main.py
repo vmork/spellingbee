@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 
 PORT = os.environ.get("PORT", 5000)
+RESET_HOUR = 19
 
 word_list = open("./wordlist.txt").read().split("\n")
 
@@ -51,7 +52,7 @@ def get_new_game():
         game = json.load(open("game.json", "r"))
         created_date = datetime.fromisoformat(game["date"]).date()
         print(datetime.now().date(), created_date)
-        if datetime.now().date() != created_date:
+        if datetime.now().date() != created_date and datetime.now().hour >= RESET_HOUR:
             game_is_old = True
         else:
             print("Using existing game for", created_date)
