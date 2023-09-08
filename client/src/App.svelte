@@ -15,20 +15,14 @@
 		outer: string[],
 		validWords: string[],
 		pangrams: string[],
-		maxScore: number
+		maxScore: number,
+		date: string,
 	}
 	type Feedback = {
 		message: string | undefined
 		positive: boolean | undefined
 		timeout: any | undefined
 		pushMessage: (message: string, isPositive: boolean) => void
-	}
-
-	function arrayEqual<T>(a: T[], b: T[]) {
-		return Array.isArray(a) &&
-		  Array.isArray(b) &&
-		  a.length === b.length &&
-		  a.every((val, index) => val === b[index]);
 	}
 
 	let game: Game
@@ -39,11 +33,11 @@
 	let showFoundWordsModal: boolean = false
 	let showGameOverModal: boolean = false
 	let showHintsModal: boolean = false
-	let hintsUnlocked: boolean = false
 	
 	async function loadGame() {
 		game = JSON.parse(localStorage.getItem("game"))
 		foundWords = JSON.parse(localStorage.getItem("foundWords")) || []
+		score = foundWords.reduce((acc, word) => acc + getWordScore(word, game), 0)
 
 		let res = await fetch("/get_game")
 		newGame = await res.json()
@@ -53,7 +47,7 @@
 			console.log("No local game found, using new game")
 			startNewGame(newGame)
 		}
-		else if (!arrayEqual(newGame.validWords, game.validWords)) {
+		else if (game.date !== newGame.date) {
 			console.log("Local game is outdated, showing game over modal")
 			showGameOverModal = true
 		}
@@ -210,7 +204,7 @@
 				<div class="word-hint">
 					{#each word as c, i (i)}
 						<div class="word-hint-letter">
-							{#if (i === 0 || i === 1 || (i === word.length-1 && showFullHints))}
+							{#if (i === 0 || (i === 1 && showFullHints))}
 								{c.toUpperCase()}
 							{/if}
 						</div>
