@@ -33,6 +33,10 @@
 	let showFoundWordsModal: boolean = false
 	let showGameOverModal: boolean = false
 	let showHintsModal: boolean = false
+
+	function arrayEqual(a: any[], b: any[]): boolean {
+		return a.length === b.length && a.every((v, i) => v === b[i])
+	}
 	
 	async function loadGame() {
 		game = JSON.parse(localStorage.getItem("game"))
@@ -41,13 +45,13 @@
 
 		let res = await fetch("/get_game")
 		newGame = await res.json()
-		console.log(newGame.letters, newGame)
+		console.log(newGame.date, game.date)
 
 		if (!game) {
 			console.log("No local game found, using new game")
 			startNewGame(newGame)
 		}
-		else if (game.date !== newGame.date) {
+		else if (!arrayEqual(newGame.letters, game.letters)) {
 			console.log("Local game is outdated, showing game over modal")
 			showGameOverModal = true
 		}
