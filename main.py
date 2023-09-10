@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory
 import json
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 PORT = os.environ.get("PORT", 5000)
@@ -49,9 +49,9 @@ def get_new_game():
     game_is_old = False
     try:
         game = json.load(open("game.json", "r"))
-        created_date = datetime.fromisoformat(game["date"]).date()
-        print(datetime.now().date(), created_date)
-        if datetime.now().date() != created_date and datetime.now().hour >= RESET_HOUR:
+        created_date = datetime.strptime(game["date"], "%Y-%m-%d").date()
+        print(created_date, datetime.now().date())
+        if created_date < (datetime.now() + timedelta(days=1)).date():
             game_is_old = True
         else:
             print("Using existing game for", created_date)
