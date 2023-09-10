@@ -3,6 +3,7 @@ import json
 import random
 from datetime import datetime, timedelta
 import os
+import pytz
 
 PORT = os.environ.get("PORT", 5000)
 RESET_HOUR = 19
@@ -50,9 +51,10 @@ def get_new_game():
     try:
         game = json.load(open("game.json", "r"))
         created_date = game["date"]
-        current_date = datetime.now().date().isoformat()
-        print(created_date, current_date, datetime.now().hour, RESET_HOUR)
-        if created_date != current_date and datetime.now().hour >= RESET_HOUR:
+        now = datetime.now(tz=pytz.timezone('Europe/Stockholm'))
+        current_date = now.date().isoformat()
+        print(created_date, current_date, now.hour, RESET_HOUR)
+        if (created_date != current_date) and (now.hour >= RESET_HOUR):
             game_is_old = True
         else:
             print("Using existing game for", created_date)
