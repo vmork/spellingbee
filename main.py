@@ -50,9 +50,9 @@ def get_new_game():
     try:
         game = json.load(open("game.json", "r"))
         created_date = game["date"]
-        current_date = (datetime.now() + timedelta(days=1)).date().isoformat()
-        print(created_date, current_date)
-        if created_date != current_date:
+        current_date = datetime.now().date().isoformat()
+        print(created_date, current_date, datetime.now().hour, RESET_HOUR)
+        if created_date != current_date and datetime.now().hour >= RESET_HOUR:
             game_is_old = True
         else:
             print("Using existing game for", created_date)

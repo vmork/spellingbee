@@ -45,7 +45,7 @@
 
 		let res = await fetch("/get_game")
 		newGame = await res.json()
-		console.log(newGame.date, game.date)
+		console.log(newGame, game)
 
 		if (!game) {
 			console.log("No local game found, using new game")
