@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory, request
 import json
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import pytz
 
@@ -20,20 +20,31 @@ def from_json(d):
 
 combo_center_counts = from_json(json.load(open("combo_center_counts.json", "r")))
 
+def current_game_date():
+    # returns the date of the last time it was RESET_HOUR (either today or yesterday)
+    now = datetime.now(tz=pytz.timezone('Europe/Stockholm'))
+    if now.hour < RESET_HOUR: # yesterday
+        return (now - timedelta(days=1)).date() 
+    else: # today
+        return now.date()
+
 def create_game():
+    date = current_game_date().isoformat()
+    random.seed(date) 
+    
     combo, center = random.choice(list(combo_center_counts.keys()))
     valid_words = get_valid_words(combo, center)
     pangrams = [w for w in valid_words if len(set(w)) == 7]
+    
     game = {
         "letters": list(combo),
         "center": center,
         "validWords": valid_words,
         "pangrams": pangrams,
-        "date": datetime.now().date().isoformat(),
+        "date": date,
     }
     print("creating game:", game["date"], combo, center)
     return game
-
 
 app = Flask(__name__)
 
@@ -51,10 +62,9 @@ def get_new_game():
     game_is_old = False
     try:
         game = json.load(open("game.json", "r"))
-        created_date = game["date"]
-        now = datetime.now(tz=pytz.timezone('Europe/Stockholm'))
-        current_date = now.date().isoformat()
-        if (created_date != current_date) and (now.hour >= RESET_HOUR):
+        old_game_date = game["date"]
+        print(old_game_date, current_game_date().isoformat())
+        if (old_game_date != current_game_date().isoformat()):
             game_is_old = True
         else:
             return game
