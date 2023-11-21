@@ -58,12 +58,12 @@ def base(path):
 
 @app.route('/get_game')
 def get_new_game():
-    print("/get_game request from", request.remote_addr)
+    # print("/get_game request from", request.remote_addr)
     game_is_old = False
     try:
         game = json.load(open("game.json", "r"))
         old_game_date = game["date"]
-        print(old_game_date, current_game_date().isoformat())
+        # print(old_game_date, current_game_date().isoformat())
         if (old_game_date != current_game_date().isoformat()):
             game_is_old = True
         else:
