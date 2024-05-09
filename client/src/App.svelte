@@ -11,8 +11,6 @@
 	<meta name="theme-color" content="#008000" />
 </svelte:head>
 
-
-
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { draw, fade, fly, scale } from 'svelte/transition';
@@ -572,7 +570,7 @@
 		width: 50%;
 		height: 80px;
 		display: flex;
-		justify-content: space-around;
+		justify-content: center;
 		align-items: center;
 
 		.hive-button {
