@@ -1,11 +1,11 @@
-from flask import Flask, send_from_directory, request
+from flask import Flask, send_from_directory
 import json
 import random
 from datetime import datetime, timedelta
 import os
 import pytz
 
-PORT = os.environ.get("PORT", 5000)
+PORT = os.getenv("PORT", 5000)
 RESET_HOUR = 19
 
 def get_valid_words(combo: str, center: str):
@@ -77,4 +77,4 @@ def get_new_game():
         return game
         
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=PORT)
+    app.run(debug=True, host="0.0.0.0", port=PORT)
