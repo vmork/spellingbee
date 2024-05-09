@@ -50,11 +50,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return send_from_directory('client/public', 'index.html')
+    return send_from_directory('public', 'index.html')
     
 @app.route('/<path:path>')
 def base(path):
-    return send_from_directory('client/public', path)
+    return send_from_directory('public', path)
 
 @app.route('/get_game')
 def get_new_game():
