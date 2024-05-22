@@ -1,3 +1,4 @@
 node_modules/
-public/build
+public/build/
 *.ipynb
+__pycache__/
