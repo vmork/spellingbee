@@ -1,4 +1,5 @@
 node_modules/
-public/build
 *.ipynb
 package-lock.json
+public/build/
+__pycache__/

@@ -30,7 +30,7 @@ def current_game_date():
 
 def create_game():
     date = current_game_date().isoformat()
-    random.seed(date) 
+    random.seed(date)
     
     combo, center = random.choice(list(combo_center_counts.keys()))
     valid_words = get_valid_words(combo, center)

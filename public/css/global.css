@@ -5,7 +5,18 @@ html, body {
     padding: 0;
     background-color: #F6F6F6;
 }
+
+@media only screen and (max-width: 600px) {
+    body {
+        -webkit-user-select: none;  /* Chrome all / Safari all */
+        -moz-user-select: none;     /* Firefox all */
+        -ms-user-select: none;      /* IE 10+ */
+        user-select: none;          /* Likely future */      
+    }
+}
+
 button {
     background-color: #F6F6F6 !important;
     -webkit-tap-highlight-color: transparent;
 }
+
